@@ -3,6 +3,9 @@ package app
 import (
 	"bags2on/delivery/internal/config"
 	"bags2on/delivery/internal/delivery/router"
+	"bags2on/delivery/internal/delivery/router/handlers"
+	novaposhta "bags2on/delivery/internal/services/nova_poshta"
+	"bags2on/delivery/internal/services/shared"
 	"context"
 	"log"
 	"net/http"
@@ -21,13 +24,12 @@ type app struct {
 
 func New(config *config.Config) *app {
 
-	sharedService := SharedService(config)
+	sharedService := shared.NewSharedService(config)
+	novaposhtaUC := novaposhta.NewNovaPoshtaService(config)
 
-	services := &ServicesRoot{
-		Shared: sharedService,
-	}
+	handlers := handlers.NewHandlers(sharedService, novaposhtaUC)
 
-	router := router.NewRouter(services.Shared)
+	router := router.NewRouter(handlers)
 
 	return &app{
 		config: config,
@@ -47,7 +49,7 @@ func (a *app) serve() {
 		Handler:           http.TimeoutHandler(a.router, 15*time.Second, "request timeout expired"),
 	}
 
-	log.Printf("try to connect to http://localhost:%s for GraphQL playground", a.config.Port)
+	log.Printf("try to connect to http://localhost:%s", a.config.Port)
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {

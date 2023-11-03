@@ -1,18 +1,13 @@
 package router
 
 import (
-	"bags2on/delivery/internal/services/shared"
-	"net/http"
+	"bags2on/delivery/internal/delivery/router/handlers"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 )
 
-type Services interface {
-	shared.UseCase
-}
-
-func NewRouter(sharedServices shared.UseCase) *chi.Mux {
+func NewRouter(handlers *handlers.Handlers) *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
@@ -21,10 +16,8 @@ func NewRouter(sharedServices shared.UseCase) *chi.Mux {
 		AllowCredentials: true,
 	}))
 
-	r.Get("/popular-cities", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(sharedServices.PopularCities())
-	})
+	r.Get("/popular-cities", handlers.PopularCities)
+	r.Get("/warehouses", handlers.Warehouses)
 
 	return r
 }
