@@ -1,7 +1,7 @@
 package router
 
 import (
-	"bags2on/delivery/internal/pkg/shared"
+	"bags2on/delivery/internal/services/shared"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
