@@ -1,7 +1,10 @@
 package novaposhta
 
-var novaposhtaCache = make(map[string][]byte)
+import "github.com/allegro/bigcache/v3"
+
+var citiesCache = make(map[string][]byte)
+var warehousesCache *bigcache.BigCache
 
 func init() {
-	novaposhtaCache["c1"] = []byte(`[{"id": "w1", "name": "Перше відділення"}]`)
+	initNovaPoshtaCache()
 }

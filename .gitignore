@@ -1,2 +1,4 @@
 /json/warehouses
 /json/cities
+/test-data
+.DS_Store

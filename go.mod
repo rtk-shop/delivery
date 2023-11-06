@@ -8,3 +8,5 @@ require (
 )
 
 require github.com/go-chi/cors v1.2.1
+
+require github.com/allegro/bigcache/v3 v3.1.0
