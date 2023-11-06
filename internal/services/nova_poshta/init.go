@@ -21,7 +21,7 @@ func initNovaPoshtaCache() {
 
 	warehouses, err := bigcache.New(context.Background(), config)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	warehousesCache = loadWarehouses(warehouses)
