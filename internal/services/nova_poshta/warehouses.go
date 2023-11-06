@@ -1,16 +1,32 @@
 package novaposhta
 
 import (
+	"bags2on/delivery/internal/entity"
+	"bags2on/delivery/internal/services/nova_poshta/mock"
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
 )
 
-type TempJson struct {
-	Name string `json:"name"`
+/*
+	"errors": [],
+	"warnings": [],
+	"info": {
+		"totalCount": 850
+	},
+	"messageCodes": [],
+	"errorCodes": [],
+	"warningCodes": [],
+	"infoCodes": []
+*/
+
+type APIResoonse struct {
+	Success bool           `json:"success"`
+	Data    []WarehouseDTO `json:"data"`
 }
 
 func (s *service) Warehouses(cityID string) ([]byte, error) {
@@ -40,24 +56,41 @@ func (s *service) Warehouses(cityID string) ([]byte, error) {
 			return nil, fmt.Errorf("faild to build request to Nova Poshta API")
 		}
 
-		fmt.Println(req)
+		// resp, err := http.DefaultClient.Do(req)
+		resp, err := mock.MockHttpClient.Do(req)
+		if err != nil {
+			log.Println(err)
+			return nil, fmt.Errorf("faild to DO request to Nova Poshta API")
+		}
 
-		// res, err := http.DefaultClient.Do(req)
-		// if err != nil {
-		// 	log.Println(err)
-		// 	return nil, fmt.Errorf("faild to DO request to Nova Poshta API")
-		// }
+		defer resp.Body.Close()
 
-		temp := []byte(`[{"name": "User"}, {"name": "Admin"}]`)
+		respData, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Println(err)
+			return nil, fmt.Errorf("faild to read body data")
+		}
 
-		var result []TempJson
+		// fmt.Println(string(respData)[:100])
 
-		if err = json.Unmarshal(temp, &result); err != nil {
+		var result APIResoonse
+
+		if err = json.Unmarshal(respData, &result); err != nil {
 			log.Println(err)
 			return nil, fmt.Errorf("faild to read json")
 		}
 
-		fmt.Println(result)
+		if !result.Success {
+			return nil, fmt.Errorf("request was failed because of logical error")
+		}
+
+		// fmt.Println(result)
+
+		if result.Data[0].CityRef != cityID {
+			return nil, fmt.Errorf("the data does not match the city ID")
+		}
+
+		wReady := processWarehouses(result.Data)
 
 		file, err := os.Create("json/warehouses/nova/" + cityID + ".json")
 		if err != nil {
@@ -68,9 +101,9 @@ func (s *service) Warehouses(cityID string) ([]byte, error) {
 		defer file.Close()
 
 		encoder := json.NewEncoder(file)
-		encoder.Encode(result)
+		encoder.Encode(wReady)
 
-		bt, err := json.Marshal(result)
+		bt, err := json.Marshal(wReady)
 		if err != nil {
 			log.Println(err)
 			return nil, fmt.Errorf("faild to marshal json for cache")
@@ -79,20 +112,34 @@ func (s *service) Warehouses(cityID string) ([]byte, error) {
 		err = warehousesCache.Set(cityID, bt)
 		if err != nil {
 			log.Println(err)
-			return nil, fmt.Errorf("faild to marshal json for cache")
+			return nil, fmt.Errorf("faild to set json for cache")
 		}
 
 		w, err := warehousesCache.Get(cityID)
 		if err != nil {
 			log.Println(err)
-			return nil, fmt.Errorf("warehouses are not in the cache")
+			return nil, fmt.Errorf("warehouses are not in the cache after insertion")
 		}
 
 		return w, nil
 
-		// return nil, fmt.Errorf("warehouses for city %q not found", cityID)
-
 	}
 
+	fmt.Printf("cache: load warehouses for %q\n", cityID)
+
 	return data, nil
+}
+
+func processWarehouses(warehouses []WarehouseDTO) []entity.Warehouse {
+
+	dst := make([]entity.Warehouse, 0, len(warehouses))
+
+	for _, w := range warehouses {
+		dst = append(dst, entity.Warehouse{
+			ID:          w.Ref,
+			Description: w.Description,
+		})
+	}
+
+	return dst
 }
