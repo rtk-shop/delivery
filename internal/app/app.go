@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/redis/go-redis/v9"
 )
 
 type app struct {
@@ -22,7 +23,7 @@ type app struct {
 	router chi.Router
 }
 
-func New(config *config.Config) *app {
+func New(config *config.Config, cache *redis.Client) *app {
 
 	sharedService := shared.NewSharedService(config)
 	novaposhtaUC := novaposhta.NewNovaPoshtaService(config)
