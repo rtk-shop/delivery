@@ -3,22 +3,22 @@ package main
 import (
 	"bags2on/delivery/internal/app"
 	"bags2on/delivery/internal/config"
-	"bags2on/delivery/pkg/redis"
+	"bags2on/delivery/pkg/cache"
 	"log"
 
 	"github.com/joho/godotenv"
 )
 
 func init() {
-	if err := godotenv.Load(); err != nil {
-		panic("no .env files found")
+	if err := godotenv.Load(".env", ".env.secret"); err != nil {
+		log.Fatalf(".env load error: %v", err)
 	}
-	log.Printf("loaded .env\n")
+	log.Printf("loaded .env files\n")
 }
 
 func main() {
 	config := config.New()
-	cache := redis.NewClient(config)
+	cache := cache.NewRedisClient(config)
 
 	app := app.New(config, cache)
 
