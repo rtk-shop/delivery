@@ -1,4 +1,4 @@
-package redis
+package cache
 
 import (
 	"bags2on/delivery/internal/config"
@@ -8,12 +8,12 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func NewClient(config *config.Config) *redis.Client {
+func NewRedisClient(config *config.Config) *redis.Client {
 
 	client := redis.NewClient(&redis.Options{
 		Addr:     "localhost:" + config.RedisPort,
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Password: "",
+		DB:       config.RedisDB,
 	})
 
 	_, err := client.Ping(context.Background()).Result()
