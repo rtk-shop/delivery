@@ -26,7 +26,7 @@ type app struct {
 func New(config *config.Config, cache *redis.Client) *app {
 
 	sharedService := shared.NewSharedService(config, cache)
-	novaposhtaUC := novaposhta.NewNovaPoshtaService(config)
+	novaposhtaUC := novaposhta.NewNovaPoshtaService(config, cache)
 
 	handlers := handlers.NewHandlers(sharedService, novaposhtaUC)
 
