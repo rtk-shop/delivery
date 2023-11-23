@@ -2,6 +2,8 @@ package mock
 
 import (
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -21,21 +23,43 @@ var (
 
 func init() {
 	MockHttpClient = &Client{}
+	initNovaPoshtaCache()
 }
 
 func (m *Client) Do(req *http.Request) (*http.Response, error) {
 
-	fileData, err := os.ReadFile("test-data/kharkiv_warehouses.json")
+	bodyData, err := io.ReadAll(req.Body)
 	if err != nil {
-		return nil, err
+		fmt.Printf("client: could not read response body: %s\n", err)
+		os.Exit(1)
 	}
 
-	r := io.NopCloser(bytes.NewReader(fileData))
+	var data struct {
+		MethodProperties struct {
+			CityRef string `json:"CityRef"`
+		} `json:"methodProperties"`
+	}
 
-	// time.Sleep(1 * time.Second)
+	err = json.Unmarshal(bodyData, &data)
+	if err != nil {
+		return &http.Response{
+			StatusCode: http.StatusBadRequest,
+			Body:       nil,
+		}, nil
+	}
+
+	warehouses, err := warehousesCache.Get(data.MethodProperties.CityRef)
+	if err != nil {
+		return &http.Response{
+			StatusCode: http.StatusNotFound,
+			Body:       nil,
+		}, nil
+	}
+
+	r := io.NopCloser(bytes.NewReader(warehouses))
 
 	return &http.Response{
-		StatusCode: 200,
+		StatusCode: http.StatusOK,
 		Body:       r,
 	}, nil
 

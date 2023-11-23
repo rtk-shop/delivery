@@ -1,5 +1,3 @@
-/json/warehouses/**/*.json
-/json/cities/**/*.json
 /test-data
 .DS_Store
 .env.secret
