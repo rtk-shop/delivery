@@ -10,7 +10,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"time"
 )
 
 const cahceKey = "nova_warehouses:"
@@ -20,15 +19,8 @@ func (s *service) Warehouses(cityID string) ([]byte, error) {
 	key := cahceKey + cityID
 	ctx := context.Background()
 
-	// fmt.Println("cache key:", key)
-
-	cacheResult, err := s.cache.JSONGet(ctx, key, ".").Result()
+	cacheResult, err := s.cache.Get(ctx, key).Result()
 	if err != nil {
-		fmt.Println(err)
-		return nil, fmt.Errorf("failed go get data from cache")
-	}
-
-	if cacheResult == "" {
 		fmt.Printf("warehouses for city %q not found\n", cityID)
 		fmt.Printf("request Nova Poshta API\n")
 
@@ -48,21 +40,11 @@ func (s *service) Warehouses(cityID string) ([]byte, error) {
 			return nil, fmt.Errorf("final json isn't valid")
 		}
 
-		cacheResult, err := s.cache.JSONSet(ctx, key, "$", jsonData).Result()
+		_, err = s.cache.Set(ctx, key, jsonData, 0).Result()
 		if err != nil {
 			log.Println(err)
 			return nil, fmt.Errorf("failed to set json for cache")
 		}
-
-		fmt.Println("cache JSON.SET:", cacheResult)
-
-		expireRes, err := s.cache.Expire(ctx, key, time.Minute).Result()
-		if err != nil {
-			log.Println(err)
-			return nil, fmt.Errorf("failed to set expire for key %s", key)
-		}
-
-		fmt.Println("expireRes:", expireRes)
 
 		return jsonData, nil
 
