@@ -25,7 +25,7 @@ func init() {
 		log.Fatalf("No .env.%s file found, load default", *env)
 	}
 
-	log.Printf("loaded \".env.%s\"\n", *env)
+	log.Printf("loaded .env.%s\n", *env)
 
 }
 
