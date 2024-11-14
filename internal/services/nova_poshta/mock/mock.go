@@ -23,7 +23,7 @@ var (
 
 func init() {
 	MockHttpClient = &Client{}
-	initNovaPoshtaCache()
+	// initNovaPoshtaCache()
 }
 
 func (m *Client) Do(req *http.Request) (*http.Response, error) {
