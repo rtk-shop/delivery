@@ -1,18 +1,19 @@
 package handlers
 
 import (
-	novaposhta "rtk/delivery/internal/services/nova_poshta"
+	// novaposhta "rtk/delivery/internal/services/nova_poshta"
+	novaposhta "rtk/delivery/internal/services/nova-poshta"
 	"rtk/delivery/internal/services/shared"
 )
 
 type Handlers struct {
-	sharedUC     shared.UseCase
-	novaposhtaUC novaposhta.UseCase
+	sharedService shared.Service
+	nvpService    novaposhta.Service
 }
 
-func NewHandlers(shared shared.UseCase, novaposhtaUC novaposhta.UseCase) *Handlers {
+func NewHandlers(shared shared.Service, novaposhta novaposhta.Service) *Handlers {
 	return &Handlers{
-		sharedUC:     shared,
-		novaposhtaUC: novaposhtaUC,
+		sharedService: shared,
+		nvpService:    novaposhta,
 	}
 }

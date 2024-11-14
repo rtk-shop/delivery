@@ -1,16 +1,17 @@
 package app
 
 import (
-	"rtk/delivery/internal/config"
-	"rtk/delivery/internal/delivery/router"
-	"rtk/delivery/internal/delivery/router/handlers"
-	novaposhta "rtk/delivery/internal/services/nova_poshta"
-	"rtk/delivery/internal/services/shared"
 	"context"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"rtk/delivery/internal/config"
+	"rtk/delivery/internal/delivery/router"
+	"rtk/delivery/internal/delivery/router/handlers"
+
+	novaposhta "rtk/delivery/internal/services/nova-poshta"
+	"rtk/delivery/internal/services/shared"
 	"syscall"
 	"time"
 
@@ -25,10 +26,11 @@ type app struct {
 
 func New(config *config.Config, cache *redis.Client) *app {
 
-	sharedService := shared.NewSharedService(config, cache)
-	novaposhtaUC := novaposhta.NewNovaPoshtaService(config, cache)
+	sharedService := shared.New(config, cache)
 
-	handlers := handlers.NewHandlers(sharedService, novaposhtaUC)
+	nvpService := novaposhta.New(config, cache)
+
+	handlers := handlers.NewHandlers(sharedService, nvpService)
 
 	router := router.NewRouter(handlers)
 

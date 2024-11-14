@@ -6,7 +6,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type UseCase interface {
+type Service interface {
 	PopularCities() ([]byte, error)
 }
 
@@ -15,7 +15,7 @@ type service struct {
 	cache  *redis.Client
 }
 
-func NewSharedService(config *config.Config, cache *redis.Client) UseCase {
+func New(config *config.Config, cache *redis.Client) Service {
 	return &service{
 		config: config,
 		cache:  cache,

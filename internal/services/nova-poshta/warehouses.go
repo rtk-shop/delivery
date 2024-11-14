@@ -1,8 +1,6 @@
 package novaposhta
 
 import (
-	"rtk/delivery/internal/entity"
-	"rtk/delivery/internal/services/nova_poshta/mock"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -10,6 +8,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"rtk/delivery/internal/entity"
+	"rtk/delivery/internal/services/nova-poshta/mock"
 )
 
 const cahceKey = "nova_warehouses:"
@@ -91,7 +91,7 @@ func (s *service) fetchFromAPI(cityID string) ([]entity.Warehouse, error) {
 			"Language": "UA",
 			"CityRef": "%s"
 		}
-	}`, s.config.NovaPoshtaKey, cityID)
+	}`, s.apiKey, cityID)
 
 	reqBodyJson := []byte(reqBodyString)
 

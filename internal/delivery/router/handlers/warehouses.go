@@ -21,7 +21,7 @@ func (h *Handlers) Warehouses(w http.ResponseWriter, r *http.Request) {
 	// fmt.Println("query params:", cityId, provider)
 
 	if provider == NovaProvider {
-		data, err := h.novaposhtaUC.Warehouses(cityId)
+		data, err := h.nvpService.Warehouses(cityId)
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte(fmt.Sprintf(`{"message": "%s"}`, err)))

@@ -8,7 +8,7 @@ import (
 func (h *Handlers) PopularCities(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	cities, err := h.sharedUC.PopularCities()
+	cities, err := h.sharedService.PopularCities()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(fmt.Sprintf(`{"message": "%s"}`, err)))
