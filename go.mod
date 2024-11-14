@@ -1,9 +1,9 @@
 module rtk/delivery
 
-go 1.21.1
+go 1.23.2
 
 require (
-	github.com/go-chi/chi/v5 v5.0.10
+	github.com/go-chi/chi/v5 v5.1.0
 	github.com/joho/godotenv v1.5.1
 )
 
