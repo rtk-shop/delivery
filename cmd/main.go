@@ -1,23 +1,37 @@
 package main
 
 import (
+	"flag"
+	"log"
 	"rtk/delivery/internal/app"
 	"rtk/delivery/internal/config"
 	"rtk/delivery/pkg/cache"
-	"log"
 
 	"github.com/joho/godotenv"
 )
 
 func init() {
-	if err := godotenv.Load(".env", ".env.secret"); err != nil {
-		log.Fatalf(".env load error: %v", err)
+	env := flag.String("env", "dev", "specify .env filename for flag")
+	flag.Parse()
+
+	if *env == "dev" {
+		if err := godotenv.Load(".env.local"); err != nil {
+			log.Fatal("No .env.local file found, create it!")
+		}
+		log.Println("loaded .env.local")
 	}
-	log.Printf("loaded .env files\n")
+
+	if err := godotenv.Load(".env." + *env); err != nil {
+		log.Fatalf("No .env.%s file found, load default", *env)
+	}
+
+	log.Printf("loaded \".env.%s\"\n", *env)
+
 }
 
 func main() {
 	config := config.New()
+
 	cache := cache.NewRedisClient(config)
 
 	app := app.New(config, cache)

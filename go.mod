@@ -11,6 +11,7 @@ require github.com/go-chi/cors v1.2.1
 
 require (
 	github.com/allegro/bigcache/v3 v3.1.0
+	github.com/caarlos0/env/v11 v11.2.2
 	github.com/redis/go-redis/v9 v9.3.0
 )
 

@@ -1,37 +1,36 @@
 package config
 
 import (
-	"rtk/delivery/internal/utils"
 	"log"
-	"strconv"
+
+	"github.com/caarlos0/env/v11"
+)
+
+const (
+	DevEnv  = "development"
+	ProdEnv = "production"
 )
 
 type Config struct {
-	Port          string
-	NovaPoshtaKey string
-	NovaPoshtaURL string
-	RedisDB       int
-	RedisPort     string
+	IsDev         bool
+	Environment   string `env:"ENVIRONMENT,required"`
+	Port          string `env:"PORT,required"`
+	NovaPoshtaKey string `env:"NOVA_POSHTA_KEY,required"`
+	NovaPoshtaURL string `env:"NOVA_POSHTA_API_URL,required"`
+	RedisDB       int    `env:"REDIS_DB,required"`
+	RedisPort     string `env:"REDIS_PORT,required"`
 }
 
 func New() *Config {
 
-	port := utils.GetEnv("PORT")
-	novaPoshtaKey := utils.GetEnv("NOVA_POSHTA_KEY")
-	novaPoshtaURL := utils.GetEnv("NOVA_POSHTA_API_URL")
-	redisDBRaw := utils.GetEnv("REDIS_DB")
-	redisPort := utils.GetEnv("REDIS_PORT")
+	var cfg Config
 
-	redisDB, err := strconv.Atoi(redisDBRaw)
+	err := env.Parse(&cfg)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln("failed to parse config", "error", err)
 	}
 
-	return &Config{
-		Port:          port,
-		NovaPoshtaKey: novaPoshtaKey,
-		NovaPoshtaURL: novaPoshtaURL,
-		RedisDB:       redisDB,
-		RedisPort:     redisPort,
-	}
+	cfg.IsDev = cfg.Environment == DevEnv
+
+	return &cfg
 }
