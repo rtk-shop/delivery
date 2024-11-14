@@ -1,7 +1,7 @@
 package shared
 
 import (
-	"bags2on/delivery/internal/config"
+	"rtk/delivery/internal/config"
 
 	"github.com/redis/go-redis/v9"
 )

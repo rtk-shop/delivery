@@ -1,7 +1,7 @@
 package config
 
 import (
-	"bags2on/delivery/internal/utils"
+	"rtk/delivery/internal/utils"
 	"log"
 	"strconv"
 )

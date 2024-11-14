@@ -1,11 +1,11 @@
 package app
 
 import (
-	"bags2on/delivery/internal/config"
-	"bags2on/delivery/internal/delivery/router"
-	"bags2on/delivery/internal/delivery/router/handlers"
-	novaposhta "bags2on/delivery/internal/services/nova_poshta"
-	"bags2on/delivery/internal/services/shared"
+	"rtk/delivery/internal/config"
+	"rtk/delivery/internal/delivery/router"
+	"rtk/delivery/internal/delivery/router/handlers"
+	novaposhta "rtk/delivery/internal/services/nova_poshta"
+	"rtk/delivery/internal/services/shared"
 	"context"
 	"log"
 	"net/http"

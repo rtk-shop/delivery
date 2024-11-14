@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	novaposhta "bags2on/delivery/internal/services/nova_poshta"
-	"bags2on/delivery/internal/services/shared"
+	novaposhta "rtk/delivery/internal/services/nova_poshta"
+	"rtk/delivery/internal/services/shared"
 )
 
 type Handlers struct {

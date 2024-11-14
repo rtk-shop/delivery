@@ -1,9 +1,9 @@
 package main
 
 import (
-	"bags2on/delivery/internal/app"
-	"bags2on/delivery/internal/config"
-	"bags2on/delivery/pkg/cache"
+	"rtk/delivery/internal/app"
+	"rtk/delivery/internal/config"
+	"rtk/delivery/pkg/cache"
 	"log"
 
 	"github.com/joho/godotenv"

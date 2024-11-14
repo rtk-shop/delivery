@@ -1,8 +1,8 @@
 package novaposhta
 
 import (
-	"bags2on/delivery/internal/entity"
-	"bags2on/delivery/internal/services/nova_poshta/mock"
+	"rtk/delivery/internal/entity"
+	"rtk/delivery/internal/services/nova_poshta/mock"
 	"bytes"
 	"context"
 	"encoding/json"

@@ -1,4 +1,4 @@
-module bags2on/delivery
+module rtk/delivery
 
 go 1.21.1
 

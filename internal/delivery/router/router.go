@@ -1,7 +1,7 @@
 package router
 
 import (
-	"bags2on/delivery/internal/delivery/router/handlers"
+	"rtk/delivery/internal/delivery/router/handlers"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"

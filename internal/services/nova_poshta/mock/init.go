@@ -1,7 +1,7 @@
 package mock
 
 import (
-	"bags2on/delivery/internal/utils"
+	"rtk/delivery/internal/utils"
 	"context"
 	"fmt"
 	"log"

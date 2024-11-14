@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"bags2on/delivery/internal/config"
+	"rtk/delivery/internal/config"
 	"context"
 	"log"
 
