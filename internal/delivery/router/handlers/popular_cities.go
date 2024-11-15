@@ -15,5 +15,6 @@ func (h *Handlers) PopularCities(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Cache-Control", "max-age=604800") // one week
 	w.Write(cities)
 }
