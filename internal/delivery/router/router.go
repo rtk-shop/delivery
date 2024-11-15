@@ -18,6 +18,7 @@ func NewRouter(handlers *handlers.Handlers) *chi.Mux {
 
 	r.Get("/popular-cities", handlers.PopularCities)
 	r.Get("/warehouses", handlers.Warehouses)
+	r.Get("/search-settlements", handlers.SearchSettlements)
 
 	return r
 }

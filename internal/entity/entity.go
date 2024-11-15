@@ -11,3 +11,8 @@ type Warehouse struct {
 	ID          string `json:"id"`
 	Description string `json:"description"`
 }
+
+type NovaPoshtaSettlement struct {
+	ID   string `json:"settlement_id"`
+	Name string `json:"name"`
+}
