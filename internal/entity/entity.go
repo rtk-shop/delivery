@@ -16,3 +16,8 @@ type NovaPoshtaSettlement struct {
 	ID   string `json:"settlement_id"`
 	Name string `json:"name"`
 }
+
+type NovaPoshtaWarehouse struct {
+	ID   string `json:"warehouse_id"`
+	Name string `json:"name"`
+}

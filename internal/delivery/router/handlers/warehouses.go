@@ -1,26 +1,43 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
 func (h *Handlers) Warehouses(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	cityId := strings.TrimSpace(r.URL.Query().Get(CityKey))
 	provider := strings.TrimSpace(r.URL.Query().Get(ProviderKey))
-	fmt.Println("query params:", cityId, provider)
+	cityId := strings.TrimSpace(r.URL.Query().Get(CityKey))
+	warehouseType := strings.TrimSpace(r.URL.Query().Get(WarehouseTypeKey))
 
 	if provider == NovaProvider {
-		data, err := h.nvpService.Warehouses(cityId)
+
+		warehouseTypeId, err := strconv.Atoi(warehouseType)
 		if err != nil {
-			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(fmt.Sprintf(`{"message": "%s"}`, err)))
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintf(w, `{"message": "%s should be a number"}`, WarehouseTypeKey)
 			return
 		}
-		w.Write(data)
+
+		warehouses, err := h.nvpService.Warehouses(cityId, warehouseTypeId)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintf(w, `{"message": "%s"}`, err)
+			return
+		}
+
+		encoder := json.NewEncoder(w)
+		err = encoder.Encode(warehouses)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
 		return
 
 	}

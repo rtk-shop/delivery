@@ -1,110 +1,101 @@
 package novaposhta
 
 import (
-	"bytes"
-	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"rtk/delivery/internal/entity"
-	"rtk/delivery/internal/services/nova-poshta/mock"
+	"strings"
 )
 
-const cahceKey = "nova_warehouses:"
-
-func (s *service) Warehouses(cityID string) ([]byte, error) {
-
-	key := cahceKey + cityID
-	ctx := context.Background()
-
-	cacheResult, err := s.cache.Get(ctx, key).Result()
-	if err != nil {
-		fmt.Printf("warehouses for city %q not found\n", cityID)
-		fmt.Printf("request Nova Poshta API\n")
-
-		result, err := s.fetchFromAPI(cityID)
-		if err != nil {
-			fmt.Println(err)
-			return nil, fmt.Errorf("faild to fetch API")
-		}
-
-		jsonData, err := json.Marshal(result)
-		if err != nil {
-			log.Println(err)
-			return nil, fmt.Errorf("faild to marshal json for cache")
-		}
-
-		if ok := json.Valid(jsonData); !ok {
-			return nil, fmt.Errorf("final json isn't valid")
-		}
-
-		_, err = s.cache.Set(ctx, key, jsonData, 0).Result()
-		if err != nil {
-			log.Println(err)
-			return nil, fmt.Errorf("failed to set json for cache")
-		}
-
-		return jsonData, nil
-
-	}
-
-	fmt.Printf("cache: load warehouses for %q\n", cityID)
-
-	return []byte(cacheResult), nil
-}
-
-func processWarehouses(warehouses []WarehouseDTO) []entity.Warehouse {
-
-	dst := make([]entity.Warehouse, 0, len(warehouses))
-
-	for _, w := range warehouses {
-		dst = append(dst, entity.Warehouse{
-			ID:          w.Ref,
-			Description: w.Description,
-		})
-	}
-
-	return dst
-}
-
-func (s *service) fetchFromAPI(cityID string) ([]entity.Warehouse, error) {
-
-	/*
-		"errors": [],
-		"warnings": [],
-		"info": {
-			"totalCount": 850
-		},
-		"messageCodes": [],
-		"errorCodes": [],
-		"warningCodes": [],
-		"infoCodes": []
-	*/
-
-	reqBodyString := fmt.Sprintf(`{
+const (
+	cahceKey        = "nova_warehouses:"
+	warehousesBodyF = `{
 		"apiKey": "%s",
-		"modelName": "Address",
+		"modelName": "AddressGeneral",
 		"calledMethod": "getWarehouses",
 		"methodProperties": {
+			"CityRef": "%s",
+			"Page": "",
+			"Limit": "",
 			"Language": "UA",
-			"CityRef": "%s"
+			"TypeOfWarehouseRef": "%s"
 		}
-	}`, s.apiKey, cityID)
+	}`
+)
 
-	reqBodyJson := []byte(reqBodyString)
+// [36]
+// "TypeOfWarehouseRef": "841339c7-591a-42e2-8233-7a0a00f0ed6f"
 
-	// fmt.Println(reqBodyString)
+func (s *service) Warehouses(cityID string, warehouseType int) ([]entity.NovaPoshtaWarehouse, error) {
 
-	req, err := http.NewRequest(http.MethodGet, s.config.NovaPoshtaURL, bytes.NewReader(reqBodyJson))
+	// validate Warehouses(args)
+
+	// key := cahceKey + cityID
+	// ctx := context.Background()
+
+	// cacheResult, err := s.cache.Get(ctx, key).Result()
+	// if err != nil {
+	// 	fmt.Printf("warehouses for city %q not found\n", cityID)
+	// 	fmt.Printf("request Nova Poshta API\n")
+
+	// 	result, err := s.fetchFromAPI(cityID)
+	// 	if err != nil {
+	// 		fmt.Println(err)
+	// 		return nil, fmt.Errorf("faild to fetch API")
+	// 	}
+
+	// 	jsonData, err := json.Marshal(result)
+	// 	if err != nil {
+	// 		log.Println(err)
+	// 		return nil, fmt.Errorf("faild to marshal json for cache")
+	// 	}
+
+	// 	if ok := json.Valid(jsonData); !ok {
+	// 		return nil, fmt.Errorf("final json isn't valid")
+	// 	}
+
+	// 	_, err = s.cache.Set(ctx, key, jsonData, 0).Result()
+	// 	if err != nil {
+	// 		log.Println(err)
+	// 		return nil, fmt.Errorf("failed to set json for cache")
+	// 	}
+
+	// 	return jsonData, nil
+
+	// }
+
+	// fmt.Printf("cache: load warehouses for %q\n", cityID)
+
+	warehousesTypeRef, ok := warehouseTypesMap[warehouseType]
+	if !ok {
+		return nil, fmt.Errorf("unknown warehouse ID - %d", warehouseType)
+	}
+
+	data, err := s.fetchWarehouses(cityID, warehousesTypeRef)
+
+	if err != nil {
+		return nil, errors.New("NOVA POSHTA api not availdable")
+	}
+
+	return data, nil
+
+}
+
+func (s *service) fetchWarehouses(cityID string, warehouseType string) ([]entity.NovaPoshtaWarehouse, error) {
+
+	reqBodyString := fmt.Sprintf(warehousesBodyF, s.apiKey, cityID, warehouseType)
+
+	req, err := http.NewRequest(http.MethodGet, s.config.NovaPoshtaURL, strings.NewReader(reqBodyString))
 	if err != nil {
 		log.Println(err)
 		return nil, fmt.Errorf("faild to build request to Nova Poshta API")
 	}
 
-	// resp, err := http.DefaultClient.Do(req)
-	resp, err := mock.MockHttpClient.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Println(err)
 		return nil, fmt.Errorf("faild to DO request to Nova Poshta API")
@@ -118,24 +109,37 @@ func (s *service) fetchFromAPI(cityID string) ([]entity.Warehouse, error) {
 		return nil, fmt.Errorf("faild to read body data")
 	}
 
-	// fmt.Println(string(respData)[:100])
+	var respDTO getWarehousesDTO
 
-	var result APIResoonse
-
-	if err = json.Unmarshal(respData, &result); err != nil {
+	if err = json.Unmarshal(respData, &respDTO); err != nil {
 		log.Println(err)
 		return nil, fmt.Errorf("faild to read json")
 	}
 
-	if !result.Success {
-		return nil, fmt.Errorf("request was failed because of logical error")
+	if !respDTO.Success {
+
+		fmt.Println(reqBodyString)
+		fmt.Println(string(respData))
+
+		return nil, fmt.Errorf("request %q was failed", "getWarehouses")
+
 	}
 
-	// fmt.Println(result)
+	warehousesDTO := respDTO.Data
 
-	if result.Data[0].CityRef != cityID {
-		return nil, fmt.Errorf("the data does not match the city ID")
+	fmt.Printf("total count:%d warehouses len:%d", -1, len(warehousesDTO))
+	// fmt.Printf("total count:%d warehouses len:%d", respDTO.Info.TotalCount, len(warehousesDTO))
+
+	warehouses := make([]entity.NovaPoshtaWarehouse, 0, len(warehousesDTO))
+
+	for _, novaWarehouse := range warehousesDTO {
+
+		warehouses = append(warehouses, entity.NovaPoshtaWarehouse{
+			ID:   novaWarehouse.Ref,
+			Name: novaWarehouse.Description,
+		})
+
 	}
 
-	return processWarehouses(result.Data), nil
+	return warehouses, nil
 }

@@ -11,6 +11,24 @@ type WarehouseDTO struct {
 	CityRef     string `json:"CityRef"`
 }
 
+type getWarehousesDTO struct {
+	Success bool `json:"success"`
+	Data    []struct {
+		Ref             string `json:"Ref"`
+		Description     string `json:"Description"`
+		TypeOfWarehouse string `json:"TypeOfWarehouse"`
+	} `json:"data"`
+	Errors   []any `json:"errors"`
+	Warnings []any `json:"warnings"`
+	// Info     struct {
+	// 	TotalCount int `json:"totalCount"`
+	// } `json:"info"`
+	// MessageCodes []any `json:"messageCodes"`
+	// ErrorCodes   []any `json:"errorCodes"`
+	// WarningCodes []any `json:"warningCodes"`
+	// InfoCodes    []any `json:"infoCodes"`
+}
+
 type searchSettlementsDataDTO struct {
 	TotalCount int `json:"TotalCount"`
 	Addresses  []struct {
