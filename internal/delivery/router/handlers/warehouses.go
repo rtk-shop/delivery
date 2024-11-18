@@ -42,5 +42,5 @@ func (h *Handlers) Warehouses(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusBadRequest)
-	w.Write([]byte(`{"message": "provider is wrong"}`))
+	fmt.Fprintf(w, `{"message": "%s is wrong"}`, ProviderKey)
 }

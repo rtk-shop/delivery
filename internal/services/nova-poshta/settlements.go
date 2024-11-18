@@ -31,6 +31,10 @@ const (
 
 func (s *service) Settlements(cityName string) ([]entity.NovaPoshtaSettlement, error) {
 
+	if cityName == "" {
+		return nil, fmt.Errorf("city_name empty")
+	}
+
 	if c := utf8.RuneCountInString(cityName); c > cityNameMaxLen {
 		return nil, fmt.Errorf("city_name length > %d symbols", cityNameMaxLen)
 	}

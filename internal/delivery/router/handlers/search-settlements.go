@@ -13,12 +13,6 @@ func (h *Handlers) SearchSettlements(w http.ResponseWriter, r *http.Request) {
 	provider := strings.TrimSpace(r.URL.Query().Get(ProviderKey))
 	cityName := strings.TrimSpace(r.URL.Query().Get(CityNameKey))
 
-	if provider == "" || cityName == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, `{"message": "%s or %s are wrong"}`, ProviderKey, CityNameKey)
-		return
-	}
-
 	if provider == NovaProvider {
 
 		settlements, err := h.nvpService.Settlements(cityName)
@@ -39,6 +33,6 @@ func (h *Handlers) SearchSettlements(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusBadRequest)
-	fmt.Fprintf(w, `{"message": "%s or %s are wrong"}`, ProviderKey, CityNameKey)
+	fmt.Fprintf(w, `{"message": "%s is wrong"}`, ProviderKey)
 
 }
