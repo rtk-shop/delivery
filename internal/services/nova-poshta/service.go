@@ -7,8 +7,19 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+/*
+	Почему []byte а не entity.NovaPoshtaWarehouse?
+
+	Бенчмарк запроса всех почтоматов в Киеве может достигать ~2 мб
+	и marshal/unmarshal потребляет слишком много,
+	не говоря о дополнительной сериализации в транспортном слое
+
+	BenchmarkWarehousesJSON-8   	     223	    5015052 ns/op	  3278636 B/op	   14419 allocs/op
+	BenchmarkWarehousesByte-8   	   11002	     107362 ns/op	   999700 B/op	       9 allocs/op
+*/
+
 type Service interface {
-	Warehouses(cityID string, warehouseType int) ([]entity.NovaPoshtaWarehouse, error)
+	Warehouses(cityID string, warehouseType int) ([]byte, error)
 	Settlements(cityName string) ([]entity.NovaPoshtaSettlement, error)
 }
 

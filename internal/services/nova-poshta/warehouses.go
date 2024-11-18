@@ -1,6 +1,7 @@
 package novaposhta
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,10 +10,15 @@ import (
 	"net/http"
 	"rtk/delivery/internal/entity"
 	"strings"
+	"time"
+	"unicode/utf8"
+
+	"github.com/redis/go-redis/v9"
 )
 
 const (
-	cahceKey        = "nova_warehouses:"
+	cityIdMaxLen    = 36
+	cahceKey        = "nova_warehouses"
 	warehousesBodyF = `{
 		"apiKey": "%s",
 		"modelName": "AddressGeneral",
@@ -27,61 +33,56 @@ const (
 	}`
 )
 
-// [36]
-// "TypeOfWarehouseRef": "841339c7-591a-42e2-8233-7a0a00f0ed6f"
-
-func (s *service) Warehouses(cityID string, warehouseType int) ([]entity.NovaPoshtaWarehouse, error) {
+func (s *service) Warehouses(cityID string, warehouseType int) ([]byte, error) {
 
 	// validate Warehouses(args)
 
-	// key := cahceKey + cityID
-	// ctx := context.Background()
-
-	// cacheResult, err := s.cache.Get(ctx, key).Result()
-	// if err != nil {
-	// 	fmt.Printf("warehouses for city %q not found\n", cityID)
-	// 	fmt.Printf("request Nova Poshta API\n")
-
-	// 	result, err := s.fetchFromAPI(cityID)
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 		return nil, fmt.Errorf("faild to fetch API")
-	// 	}
-
-	// 	jsonData, err := json.Marshal(result)
-	// 	if err != nil {
-	// 		log.Println(err)
-	// 		return nil, fmt.Errorf("faild to marshal json for cache")
-	// 	}
-
-	// 	if ok := json.Valid(jsonData); !ok {
-	// 		return nil, fmt.Errorf("final json isn't valid")
-	// 	}
-
-	// 	_, err = s.cache.Set(ctx, key, jsonData, 0).Result()
-	// 	if err != nil {
-	// 		log.Println(err)
-	// 		return nil, fmt.Errorf("failed to set json for cache")
-	// 	}
-
-	// 	return jsonData, nil
-
-	// }
-
-	// fmt.Printf("cache: load warehouses for %q\n", cityID)
+	if c := utf8.RuneCountInString(cityID); c > cityIdMaxLen {
+		return nil, fmt.Errorf("city_id length > %d symbols", cityIdMaxLen)
+	}
 
 	warehousesTypeRef, ok := warehouseTypesMap[warehouseType]
 	if !ok {
 		return nil, fmt.Errorf("unknown warehouse ID - %d", warehouseType)
 	}
 
-	data, err := s.fetchWarehouses(cityID, warehousesTypeRef)
+	key := cahceKey + ":" + cityID + ":" + warehousesTypeRef
 
-	if err != nil {
-		return nil, errors.New("NOVA POSHTA api not availdable")
+	cacheResult, err := s.cache.Get(context.Background(), key).Bytes()
+	if err == redis.Nil {
+
+		fmt.Printf("warehouses for city %q not found\n", cityID)
+		fmt.Printf("request to Nova Poshta API\n")
+
+		data, err := s.fetchWarehouses(cityID, warehousesTypeRef)
+		if err != nil {
+			return nil, errors.New("NOVA POSHTA api not availdable")
+		}
+
+		jsonData, err := json.Marshal(data)
+		if err != nil {
+			log.Println(err)
+			return nil, fmt.Errorf("faild to marshal json for cache")
+		}
+
+		err = s.cache.Set(context.Background(), key, jsonData, 48*time.Hour).Err()
+		if err != nil {
+			fmt.Println(err)
+			return nil, errors.New("failed to store data in cache")
+		}
+
+		return jsonData, nil
+
+	} else if err != nil {
+
+		fmt.Println(err)
+		return nil, errors.New("failed to get data from cache")
+
 	}
 
-	return data, nil
+	fmt.Printf("cache: load warehouses for %q\n", cityID)
+
+	return cacheResult, nil
 
 }
 
@@ -127,7 +128,7 @@ func (s *service) fetchWarehouses(cityID string, warehouseType string) ([]entity
 
 	warehousesDTO := respDTO.Data
 
-	fmt.Printf("total count:%d warehouses len:%d", -1, len(warehousesDTO))
+	fmt.Printf("total count:%d warehouses len:%d\n", -1, len(warehousesDTO))
 	// fmt.Printf("total count:%d warehouses len:%d", respDTO.Info.TotalCount, len(warehousesDTO))
 
 	warehouses := make([]entity.NovaPoshtaWarehouse, 0, len(warehousesDTO))

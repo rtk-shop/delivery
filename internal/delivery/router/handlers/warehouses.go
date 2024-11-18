@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -31,10 +30,10 @@ func (h *Handlers) Warehouses(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		encoder := json.NewEncoder(w)
-		err = encoder.Encode(warehouses)
+		_, err = w.Write(warehouses)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, `{"message": "failed to send response"}`)
 			return
 		}
 
@@ -43,5 +42,5 @@ func (h *Handlers) Warehouses(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusBadRequest)
-	w.Write([]byte(`{"message": "provider or city are wrong"}`))
+	w.Write([]byte(`{"message": "provider is wrong"}`))
 }
