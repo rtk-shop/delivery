@@ -48,7 +48,7 @@
     "city_id": "ae24b4ba964447328c144beb1c60974b"
   },
   {
-    "city_name": "Вінниця",
+    "city_name": "м. Вінниця",
     "nova_poshta_id": "db5c88de-391c-11dd-90d9-001a92567626",
     "ukrposhta_id": "1057",
     "city_id": "5090df5804484e2d80d41aba36710e6b"
@@ -78,25 +78,25 @@
     "city_id": "390f2338ffc94ef8b24e987bcacbe786"
   },
   {
-    "city_name": "Чернігів",
+    "city_name": "м. Чернігів, Чернігівська обл",
     "nova_poshta_id": "db5c897c-391c-11dd-90d9-001a92567626",
     "ukrposhta_id": "29712",
     "city_id": "78f31baf6969426ba444c203080a9ec6"
   },
   {
-    "city_name": "Івано-Франківськ",
+    "city_name": "м. Івано-Франківськ",
     "nova_poshta_id": "db5c8904-391c-11dd-90d9-001a92567626",
     "ukrposhta_id": "9826",
     "city_id": "a8af23c5daa04745949f4e1d067321bd"
   },
   {
-    "city_name": "Житомир",
+    "city_name": "м. Житомир, Житомирська обл.",
     "nova_poshta_id": "db5c88c4-391c-11dd-90d9-001a92567626",
     "ukrposhta_id": "6708",
     "city_id": "4b5bf79fe4654a13a7aab1b675a6ab83"
   },
   {
-    "city_name": "Кропивницький",
+    "city_name": "м. Кропивницький, Кіровоградська обл.",
     "nova_poshta_id": "db5c891b-391c-11dd-90d9-001a92567626",
     "ukrposhta_id": "12069",
     "city_id": "bc5585e60eab479abea9b7e00571a4b7"
@@ -108,13 +108,13 @@
     "city_id": "59baa92eb7b84296ad10b2cace89def0"
   },
   {
-    "city_name": "Тернопіль",
+    "city_name": "м. Тернопіль, Тернопільська обл.",
     "nova_poshta_id": "db5c8900-391c-11dd-90d9-001a92567626",
     "ukrposhta_id": "22662",
     "city_id": "b60aff4d93104be8a4a040481d227a35"
   },
   {
-    "city_name": "Суми",
+    "city_name": "м. Суми, Сумська обл.",
     "nova_poshta_id": "db5c88e5-391c-11dd-90d9-001a92567626",
     "ukrposhta_id": "21680",
     "city_id": "9976ac94f86f4736bbafd7d3625afb95"
