@@ -1,22 +1,26 @@
 package shared
 
 import (
+	"bytes"
 	"encoding/json"
 	"log"
 	"os"
 	"rtk/delivery/internal/config"
+	"rtk/delivery/internal/utils"
 
 	"github.com/redis/go-redis/v9"
 )
 
 type Service interface {
 	PopularCities() ([]byte, error)
+	GetPopularCitiesHash() string
 }
 
 type service struct {
-	config         *config.Config
-	cache          *redis.Client
-	populdarCities []byte
+	config             *config.Config
+	cache              *redis.Client
+	populdarCities     []byte
+	populdarCitiesHash string
 }
 
 func New(config *config.Config, cache *redis.Client) Service {
@@ -31,9 +35,15 @@ func New(config *config.Config, cache *redis.Client) Service {
 		log.Fatalln("popular_cities.json not valid")
 	}
 
+	hash, err := utils.GetMD5hash(bytes.NewReader(data))
+	if err != nil {
+		log.Fatalln("failed to generate MD5 for popular_cities.json", "error", err)
+	}
+
 	return &service{
-		config:         config,
-		cache:          cache,
-		populdarCities: data,
+		config:             config,
+		cache:              cache,
+		populdarCities:     data,
+		populdarCitiesHash: hash,
 	}
 }

@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"crypto/md5"
 	"fmt"
+	"io"
 	"math"
 	"path/filepath"
 )
@@ -19,4 +21,14 @@ func PrettyByteSize(b int) string {
 
 func FileNameWithoutExt(fileName string) string {
 	return fileName[:len(fileName)-len(filepath.Ext(fileName))]
+}
+
+
+func GetMD5hash(src io.Reader) (string, error) {
+	hash := md5.New()
+	if _, err := io.Copy(hash, src); err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%x", hash.Sum(nil)), nil
 }
