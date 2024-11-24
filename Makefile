@@ -1,4 +1,4 @@
 go:
-	go run ./cmd/main.go
+	go run ./cmd/delivery.go
 prod:
-	go run ./cmd/main.go -env=prod
+	go run ./cmd/delivery.go -env=prod
