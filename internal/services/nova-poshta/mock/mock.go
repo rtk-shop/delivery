@@ -48,15 +48,15 @@ func (m *Client) Do(req *http.Request) (*http.Response, error) {
 		}, nil
 	}
 
-	warehouses, err := warehousesCache.Get(data.MethodProperties.CityRef)
+	wtfData, err := json.Marshal(mockCacheData)
 	if err != nil {
 		return &http.Response{
-			StatusCode: http.StatusNotFound,
+			StatusCode: http.StatusBadRequest,
 			Body:       nil,
 		}, nil
 	}
 
-	r := io.NopCloser(bytes.NewReader(warehouses))
+	r := io.NopCloser(bytes.NewReader(wtfData))
 
 	return &http.Response{
 		StatusCode: http.StatusOK,
