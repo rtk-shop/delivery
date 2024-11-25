@@ -6,6 +6,7 @@ import (
 	"rtk/delivery/internal/app"
 	"rtk/delivery/internal/config"
 	"rtk/delivery/pkg/cache"
+	"rtk/delivery/pkg/logger"
 
 	"github.com/joho/godotenv"
 )
@@ -33,8 +34,9 @@ func main() {
 	config := config.New()
 
 	cache := cache.NewRedisClient(config)
+	logger := logger.New()
 
-	app := app.New(config, cache)
+	app := app.New(config, logger, cache)
 
 	app.Run()
 }

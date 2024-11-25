@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -24,11 +25,11 @@ type app struct {
 	router chi.Router
 }
 
-func New(config *config.Config, cache *redis.Client) *app {
+func New(config *config.Config, logger *slog.Logger, cache *redis.Client) *app {
 
 	sharedService := shared.New(config, cache)
 
-	nvpService := novaposhta.New(config, cache)
+	nvpService := novaposhta.New(config, logger, cache)
 
 	handlers := handlers.NewHandlers(sharedService, nvpService)
 

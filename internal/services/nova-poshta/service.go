@@ -1,6 +1,7 @@
 package novaposhta
 
 import (
+	"log/slog"
 	"rtk/delivery/internal/config"
 	"rtk/delivery/internal/entity"
 
@@ -25,6 +26,7 @@ type Service interface {
 
 type service struct {
 	config *config.Config
+	logger *slog.Logger
 	cache  *redis.Client
 	apiKey string
 }
@@ -36,10 +38,11 @@ var warehouseTypesMap = map[int]string{
 
 }
 
-func New(config *config.Config, cache *redis.Client) Service {
+func New(config *config.Config, logger *slog.Logger, cache *redis.Client) Service {
 
 	return &service{
 		config: config,
+		logger: logger,
 		cache:  cache,
 		apiKey: config.NovaPoshtaKey,
 	}
