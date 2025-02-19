@@ -63,7 +63,9 @@ func (s *service) Warehouses(cityID string, warehouseType int) ([]byte, error) {
 			return nil, errors.New("faild to marshal json for cache")
 		}
 
-		err = s.cache.Set(context.Background(), key, jsonData, 336*time.Hour).Err() // two weeks
+		ttl := time.Duration(s.config.WarehouseDaysTTL)
+
+		err = s.cache.Set(context.Background(), key, jsonData, ttl*24*time.Hour).Err()
 		if err != nil {
 			s.logger.Error("cache set warehouses", "error", err)
 			return nil, errors.New("failed to store data")

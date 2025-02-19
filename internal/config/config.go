@@ -12,13 +12,14 @@ const (
 )
 
 type Config struct {
-	IsDev         bool
-	Environment   string `env:"ENVIRONMENT,required"`
-	Port          string `env:"PORT,required"`
-	NovaPoshtaKey string `env:"NOVA_POSHTA_KEY,required"`
-	NovaPoshtaURL string `env:"NOVA_POSHTA_API_URL,required"`
-	RedisDB       int    `env:"REDIS_DB,required"`
-	RedisPort     string `env:"REDIS_PORT,required"`
+	IsDev            bool
+	Environment      string `env:"ENVIRONMENT,required"`
+	Port             string `env:"PORT,required"`
+	NovaPoshtaKey    string `env:"NOVA_POSHTA_KEY,required"`
+	NovaPoshtaURL    string `env:"NOVA_POSHTA_API_URL,required"`
+	RedisDB          int    `env:"REDIS_DB,required"`
+	RedisPort        string `env:"REDIS_PORT,required"`
+	WarehouseDaysTTL int    `env:"WAREHOUSE_DAYS_TTL,required"`
 }
 
 func New() *Config {
